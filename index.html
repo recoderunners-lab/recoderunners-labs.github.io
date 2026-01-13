@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Executor Documentation</title>
+
+<style>
+:root {
+    --bg: #07090f;
+    --panel: #0d111c;
+    --border: #1a2140;
+    --blue: #3b82ff;
+    --red: #ff3b3b;
+    --text: #e8ecf8;
+    --muted: #9aa4c7;
+    --code: #0b0f1a;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: Inter, system-ui, sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: radial-gradient(circle at top, #0c1228, var(--bg));
+    color: var(--text);
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+aside {
+    width: 280px;
+    background: linear-gradient(180deg, #0b1020, #080b14);
+    border-right: 1px solid var(--border);
+    padding: 24px;
+    overflow-y: auto;
+}
+
+aside h1 {
+    font-size: 22px;
+    background: linear-gradient(90deg, var(--blue), var(--red));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.version {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+}
+
+nav a {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 6px;
+}
+
+nav a:hover,
+nav a.active {
+    background: linear-gradient(90deg, rgba(59,130,255,.25), rgba(255,59,59,.25));
+    color: #fff;
+}
+
+/* Main */
+main {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, rgba(59,130,255,.15), rgba(255,59,59,.15));
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 32px;
+    margin-bottom: 70px;
+}
+
+.header h2 {
+    font-size: 36px;
+    margin: 0 0 10px;
+}
+
+.header p {
+    color: var(--muted);
+    max-width: 700px;
+}
+
+/* Preview button */
+.preview-btn {
+    margin-top: 22px;
+    padding: 14px 28px;
+    font-size: 16px;
+    border-radius: 14px;
+    background: linear-gradient(90deg, var(--blue), var(--red));
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Sections */
+section {
+    max-width: 1000px;
+    margin-bottom: 90px;
+}
+
+section h3 {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+section p {
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.card {
+    background: linear-gradient(180deg, #0d1222, #0a0e19);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-top: 18px;
+}
+
+/* Features grid */
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+.feature {
+    padding: 22px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #0e1428, #0a0f1d);
+    border: 1px solid var(--border);
+}
+
+.feature h4 {
+    margin: 0 0 8px;
+}
+
+/* Code */
+pre {
+    background: var(--code);
+    border-radius: 14px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+}
+
+code {
+    color: #93c5fd;
+}
+
+/* ===== EXECUTOR POPUP ===== */
+
+#overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.65);
+    display: none;
+    z-index: 50;
+}
+
+#executorWindow {
+    position: fixed;
+    width: 900px;
+    height: 520px;
+    background: black;
+    border-radius: 14px;
+    border: 1px solid #444;
+    display: none;
+    flex-direction: column;
+    z-index: 100;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Header */
+#executorHeader {
+    height: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 14px;
+    border-bottom: 1px solid #333;
+    cursor: move;
+}
+
+#executorHeader span {
+    font-size: 18px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.alert {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: red;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+#closeBtn {
+    background: black;
+    border: 1px solid #666;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Body */
+.executor-body {
+    flex: 1;
+    display: flex;
+    padding: 12px;
+    gap: 12px;
+}
+
+.editor {
+    flex: 1;
+    background: black;
+    border: 1px solid #333;
+    border-radius: 10px;
+}
+
+.side-text {
+    width: 230px;
+    color: white;
+    font-size: 13px;
+    text-align: right;
+}
+
+/* Footer */
+.executor-footer {
+    height: 60px;
+    border-top: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.executor-footer button {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: black;
+    border: 1px solid #666;
+    color: white;
+    font-size: 18px;
+}
+
+.left-buttons,
+.right-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+footer {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+</style>
+</head>
+
+<body>
+
+<aside>
+    <h1>RoDevConsole</h1>
+    <div class="version">Documentation v1.0</div>
+
+    <nav>
+        <a href="#overview" class="active">Overview</a>
+        <a href="#features">Features</a>
+        <a href="#installation">Installation</a>
+        <a href="#interface">Interface</a>
+        <a href="#faq">FAQ & SOCIALS</a>
+    
+    </nav>
+</aside>
+
+<main>
+
+<div class="header">
+    <h2>RoDevConsole</h2>
+    <p>
+        Everything you need to understand about the executor’s features,
+        interface, configuration, and behavior.
+    </p>
+
+    <button class="preview-btn" id="previewBtn">PREVIEW EXECUTOR UI</button>
+</div>
+
+<section id="overview">
+    <h3>Overview</h3>
+    <p>
+        RoDevConsole is a Fast and easy to use executor with features, and many features coming soon! No malware, No cost, No worries!
+    
+    </p>
+</section>
+
+<section id="features">
+    <h3>Core Features</h3>
+
+    <div class="features">
+        <div class="feature"><h4>⚡ Fast Execution</h4><p>Low-latency runtime.</p></div>
+        <div class="feature"><h4>🧠 Script Editor</h4><p>Low feature script editor, its in beta please dont expect much with it!!!!</p></div>
+        <div class="feature"><h4>📁 No Malware</h4><p>This executor is completely free with no malware! One thing i can say is it isnt server sided.</p></div>
+        <div class="feature"><h4>🔐 Secure Runtime</h4><p>Isolated environment. Fully External.</p></div>
+        <div class="feature"><h4>🎨 Standard UI</h4><p>Standardized UI for executors, preview it above!</p></div>
+        <div class="feature"><h4>🧩 Plugin Support</h4><p>Plugin Support coming soon!</p></div>
+    </div>
+</section>
+
+<section id="installation">
+    <h3>Installation</h3>
+    <div class="card">
+        <ol>
+            <li>Download the latest version</li>
+            <li>Extract the files</li>
+            <li>Launch the executor</li>
+            <li>Complete setup</li>
+        </ol>
+    </div>
+</section>
+
+<section id="interface">
+    <h3>User Interface</h3>
+    <div class="card">
+        <p>
+            The UI consists of a script editor, copy text features, run button, clear button, attach button, and more. Preview UI at the top of the screen using the "PREVIEW EXECUTOR UI" button.
+        </p>
+    </div>
+</section>
+
+
+<section id="faq">
+    <h3>FAQ</h3>
+    <div class="card">
+        <p><b>Does it auto-update?</b><br>Yes, on launch.</p>
+        <p><b>Where are scripts stored?</b><br>Locally in workspace.</p>
+    </div>
+</section>
+
+<section id="faq">
+    <h3>SOCIALS</h3>
+    <div class="card">
+        <p><b>Tiktok</b><br>BloxecutorV1 (@rainplexed)</p>
+        <p><b>X (Formerly Twitter)</b><br>Ro Dev Console (@RoDevConsole)</p>
+        <p><b>Youtube</b><br>Ro Dev Console (@RoDevConsole)</p>
+    </div>
+</section>
+
+<footer>
+    © 2026 RoDevConsole Documentation
+</footer>
+
+</main>
+
+<div id="overlay"></div>
+
+<div id="executorWindow">
+    <div id="executorHeader">
+        <span>&lt;/&gt; Ro Dev Console <b>BETA VER v1.0 (DRAGGABLE)</b></span>
+        <div class="header-actions">
+            <div class="alert">!</div>
+            <button id="closeBtn">✕ Close</button>
+        </div>
+    </div>
+
+    <div class="executor-body">
+        <div class="editor"></div>
+        <div class="side-text">
+            congrats! you found an un-malwared executor! This is very hard to find especially for free
+        </div>
+    </div>
+
+    <div class="executor-footer">
+        <div class="left-buttons">
+            <button>▶</button>
+            <button>🧹</button>
+            <button>📎</button>
+        </div>
+        <div class="right-buttons">
+            <button>⤴</button>
+            <button>🧪</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const previewBtn = document.getElementById("previewBtn");
+const executor = document.getElementById("executorWindow");
+const overlay = document.getElementById("overlay");
+const closeBtn = document.getElementById("closeBtn");
+const header = document.getElementById("executorHeader");
+
+previewBtn.onclick = () => {
+    executor.style.display = "flex";
+    overlay.style.display = "block";
+};
+
+closeBtn.onclick = () => {
+    executor.style.display = "none";
+    overlay.style.display = "none";
+};
+
+let dragging = false, offsetX = 0, offsetY = 0;
+
+header.addEventListener("mousedown", e => {
+    dragging = true;
+    offsetX = e.clientX - executor.offsetLeft;
+    offsetY = e.clientY - executor.offsetTop;
+});
+
+document.addEventListener("mousemove", e => {
+    if (!dragging) return;
+    executor.style.left = e.clientX - offsetX + "px";
+    executor.style.top = e.clientY - offsetY + "px";
+    executor.style.transform = "none";
+});
+
+document.addEventListener("mouseup", () => dragging = false);
+</script>
+
+</body>
+</html>
